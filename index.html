@@ -1,98 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <title>Nascertime — Monitor de Contrações</title>
-  <meta name="description" content="Piloto PWA para registro e análise de contrações (reais x pródromos), com histórico offline." />
+    <title>Nascertime — Monitor de Contrações</title>
+    <meta
+      name="description"
+      content="Piloto PWA para registro e análise de contrações (reais x pródromos), com histórico offline."
+    />
 
-  <!-- Favicons -->
-  <link rel="icon" href="assets/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <!-- Favicons -->
+    <link rel="icon" href="assets/favicon.ico" sizes="any" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/favicon-16x16.png"
+    />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="site.webmanifest">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="site.webmanifest" />
 
-  <meta name="theme-color" content="#7c3aed" />
+    <meta name="theme-color" content="#7c3aed" />
 
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="app-header">
-    <div class="brand">
-      <img src="assets/logo-nascertime.png" alt="Logo Nascertime" class="logo" />
-      <div class="title">
-        <h1>Nascertime</h1>
-        <p class="subtitle">Monitor de contrações — PWA offline</p>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <img
+          src="assets/logo-nascertime.png"
+          alt="Logo Nascertime"
+          class="logo"
+        />
       </div>
-    </div>
-    <button id="btnInstall" class="btn ghost" hidden>Instalar</button>
-  </header>
+      <button id="btnInstall" class="btn ghost" hidden>Instalar</button>
+    </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Controle</h2>
-      <p>Pressione o botão para <strong>iniciar</strong> a contagem da contração. Pressione novamente para <strong>parar</strong> e registrar.</p>
+    <main class="container">
+      <section class="card">
+        <!-- <h2>Controle</h2> -->
+        <p>
+          Pressione o botão para <strong>iniciar</strong> a contagem da
+          contração. Pressione novamente para <strong>parar</strong> e
+          registrar.
+        </p>
 
-      <div class="timer" id="timer">00:00</div>
-      <button id="toggleBtn" class="btn primary">Iniciar contração</button>
+        <div class="timer" id="timer">00:00</div>
+        <button id="toggleBtn" class="btn primary">Iniciar contração</button>
 
-      <div class="rules">
-        <details>
-          <summary>Regras consideradas</summary>
-          <ul>
-            <li><strong>Contração real</strong>: duração ≥ 60s; menor que 60s é <em>pródromos</em>.</li>
-            <li><strong>Intervalo alvo</strong>: a cada 3 minutos (3/3).</li>
-            <li>Se houver um pródromo entre duas reais, o intervalo é calculado entre as duas reais (ignora-se o pródromo).</li>
-            <li><strong>Regra 3‑1‑1</strong>: contrações a cada ~3min, com ≥1min de duração, por ~1h contínua.</li>
+        <!-- <div class="rules">
+          <details>
+            <summary>Regras consideradas</summary>
+            <ul>
+              <li>
+                <strong>Contração real</strong>: duração ≥ 60s; menor que 60s é
+                <em>pródromos</em>.
+              </li>
+              <li><strong>Intervalo alvo</strong>: a cada 3 minutos (3/3).</li>
+              <li>
+                Se houver um pródromo entre duas reais, o intervalo é calculado
+                entre as duas reais (ignora-se o pródromo).
+              </li>
+              <li>
+                <strong>Regra 3‑1‑1</strong>: contrações a cada ~3min, com ≥1min
+                de duração, por ~1h contínua.
+              </li>
+            </ul>
+          </details>
+        </div> -->
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h3>Histórico</h3>
+          <div class="history-controls">
+            <!-- <button id="exportBtn" class="btn">Exportar .json</button> -->
+            <button id="clearBtn" class="btn danger">Limpar histórico</button>
+          </div>
+          <br />
+          <table
+            class="history"
+            id="historyTable"
+            aria-label="Histórico de contrações"
+          >
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Duração</th>
+                <th>Tipo</th>
+                <th>Intervalo até esta (válidas)</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h3>Status</h3>
+          <div id="statusMsg" class="status ok">Aguardando...</div>
+          <ul class="metrics">
+            <li>
+              <span>Válidas (≥60s):</span> <strong id="validCount">0</strong>
+            </li>
+            <li>
+              <span>Pródromos (&lt;60s):</span>
+              <strong id="prodCount">0</strong>
+            </li>
+            <li>
+              <span>Último intervalo válido:</span>
+              <strong id="lastInterval">—</strong>
+            </li>
           </ul>
-        </details>
-      </div>
-    </section>
+        </article>
+      </section>
 
-    <section class="grid">
-      <article class="card">
-        <h3>Status</h3>
-        <div id="statusMsg" class="status ok">Aguardando...</div>
-        <ul class="metrics">
-          <li><span>Válidas (≥60s):</span> <strong id="validCount">0</strong></li>
-          <li><span>Pródromos (&lt;60s):</span> <strong id="prodCount">0</strong></li>
-          <li><span>Último intervalo válido:</span> <strong id="lastInterval">—</strong></li>
-        </ul>
-      </article>
+      <!-- <section class="card note">
+        <p>
+          Este é um protótipo educacional. Não substitui avaliação profissional.
+          Se houver dor intensa, sangramento, saída de líquido ou qualquer
+          preocupação, procure atendimento imediatamente.
+        </p>
+      </section> -->
+    </main>
 
-      <article class="card">
-        <h3>Histórico (local)</h3>
-        <div class="history-controls">
-          <button id="exportBtn" class="btn">Exportar .json</button>
-          <button id="clearBtn" class="btn danger">Limpar histórico</button>
-        </div>
-        <table class="history" id="historyTable" aria-label="Histórico de contrações">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Início</th>
-              <th>Fim</th>
-              <th>Duração</th>
-              <th>Tipo</th>
-              <th>Intervalo até esta (válidas)</th>
-            </tr>
-          </thead>
-          <tbody id="historyBody"></tbody>
-        </table>
-      </article>
-    </section>
+    <footer class="app-footer">
+      © <span id="year"></span> Nascertime | Codennir - versão 0.9.0
+    </footer>
 
-    <section class="card note">
-      <p>Este é um protótipo educacional. Não substitui avaliação profissional. Se houver dor intensa, sangramento, saída de líquido ou qualquer preocupação, procure atendimento imediatamente.</p>
-    </section>
-  </main>
-
-  <footer class="app-footer">© <span id="year"></span> Nascertime — piloto PWA</footer>
-
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
